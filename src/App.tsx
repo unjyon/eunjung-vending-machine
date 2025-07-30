@@ -28,6 +28,18 @@ function App() {
     console.log("addToCart::", drinkId);
   }, []);
 
+  //== insertMoney ==//
+  const insertMoney = useCallback((amount: number) => {
+    console.log("insertMoney::", amount);
+    setInsertedAmount((prev) => prev + amount);
+  }, []);
+
+  //== cancelTransaction ==//
+  const cancelTransaction = useCallback(() => {
+    console.log("cancelTransaction::");
+    setInsertedAmount(0);
+  }, []);
+
   return (
     <div className="vending-machine-container">
       <h1>간이 자판기</h1>
@@ -45,11 +57,17 @@ function App() {
       <div className="money-input-section">
         <h2>돈 투입</h2>
         {cashArr.map((amount) => (
-          <button key={amount} className="money-button">
+          <button
+            key={amount}
+            className="money-button"
+            onClick={() => insertMoney(amount)}
+          >
             {amount}원
           </button>
         ))}
-        <button className="cancel-button">거래 취소</button>
+        <button className="cancel-button" onClick={() => cancelTransaction()}>
+          거래 취소
+        </button>
       </div>
 
       <div className="drink-selection-section">
