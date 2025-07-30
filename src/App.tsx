@@ -83,19 +83,71 @@ function App() {
     setInsertedAmount((prev) => prev + amount);
   }, []);
 
+  //== getChange ==//
+  const getChange = useCallback(() => {
+    console.log("getChange::");
+    if (change === 0) {
+      setMessage('반환할 거스름돈이 없습니다.');
+      return;
+    }
+    const returnedChange = change;
+    setChange(0);
+    setMessage(`거스름돈 ${returnedChange}원이 반환되었습니다.`);
+  }, [change, setMessage, setChange]);
+
   //== cancelTransaction ==//
   const cancelTransaction = useCallback(() => {
     console.log("cancelTransaction::");
+    const returnedAmount = insertedAmount;
     setInsertedAmount(0);
     setSelectedItems([]);
-    setMessage("돈을 넣어주세요.");
     setChange(0);
-  }, []);
+    setMessage(returnedAmount > 0 ? `${returnedAmount}원이 반환되었습니다. 다시 이용해주세요.` : '거래가 취소되었습니다.');
+  }, [insertedAmount]);
 
   //== processPurchase ==//
   const processPurchase = useCallback(() => {
     console.log("processPurchase::");
-  }, []);
+    if (selectedItems.length === 0) {
+      setMessage('구매할 음료를 먼저 선택해주세요.');
+      return;
+    }
+
+    // 재고 및 금액 확인 (구매 직전 최종 확인)
+    for (const selectedItem of selectedItems) {
+      const drink = drinks.find(d => d.id === selectedItem.drinkId);
+      if (!drink || drink.stock < selectedItem.quantity) {
+        setMessage(`${drink ? drink.name : selectedItem.drinkId} 재고가 부족합니다. 장바구니를 확인해주세요.`);
+        return;
+      }
+    }
+
+    // 현금 결제일 경우 금액 부족 여부 확인
+    if ( insertedAmount < totalAmountInCart) {
+      setMessage(`총 ${totalAmountInCart}원 구매에 금액이 부족합니다. (${insertedAmount}원 투입됨)`);
+      return;
+    }
+
+    // 구매 처리 및 재고 감소
+    setDrinks(prevDrinks =>
+      prevDrinks.map(drink => {
+        const selectedItem = selectedItems.find(item => item.drinkId === drink.id);
+        if (selectedItem) {
+          return { ...drink, stock: drink.stock - selectedItem.quantity };
+        }
+        return drink;
+      })
+    );
+
+    const newInsertedAmount = insertedAmount - totalAmountInCart;
+    const newChange = newInsertedAmount > 0 ? newInsertedAmount : 0;
+
+    setInsertedAmount(0);
+    setSelectedItems([]);
+    setChange(newChange);
+    setMessage(`구매가 완료되었습니다! 거스름돈: ${newChange}원.`);
+
+  }, [insertedAmount, selectedItems, drinks, totalAmountInCart, setMessage, setDrinks, setInsertedAmount, setSelectedItems, setChange]);
 
   //== processCardPayment ==//
   const processCardPayment = useCallback(() => {
@@ -120,10 +172,11 @@ function App() {
         <p className="message">{message}</p>
 
         <p className="amount">투입 금액: {insertedAmount}원</p>
-
-        <p className="change-message">
-          반환할 거스름돈: {change}원<button>거스름돈 받기</button>
-        </p>
+        {change > 0 && (
+          <p className="change-message">
+            반환할 거스름돈: {change}원<button onClick={() => getChange()}>거스름돈 받기</button>
+          </p>
+        )}
       </div>
 
       <div className="money-input-section">
@@ -181,7 +234,7 @@ function App() {
           </ul>
         )}
         <h3>총 결제 금액: {totalAmountInCart}원</h3>
-        <button className="purchase-button" onClick={() => processPurchase}>
+        <button className="purchase-button" onClick={processPurchase}>
           현금으로 구매하기
         </button>
         <button className="card-payment-button" onClick={() => processCardPayment()}>
