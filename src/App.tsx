@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import "./App.css";
 
 interface Drink {
@@ -9,6 +9,7 @@ interface Drink {
 }
 
 const cashArr = [100, 500, 1000, 5000, 10000];
+
 // 초기 자판기 음료 데이터
 const initialDrinks: Drink[] = [
   { id: "cola", name: "콜라", price: 1100, stock: 5 },
@@ -21,6 +22,11 @@ function App() {
   const [insertedAmount, setInsertedAmount] = useState(0); // 투입금액
   const [change, setChange] = useState(0); // 거스름돈
   const [drinks, setDrinks] = useState<Drink[]>(initialDrinks);
+
+  //== addToCart ==//
+  const addToCart = useCallback((drinkId: string) => {
+    console.log("addToCart::", drinkId);
+  }, []);
 
   return (
     <div className="vending-machine-container">
@@ -50,7 +56,11 @@ function App() {
         <h2>음료 선택</h2>
         <div className="drink-grid">
           {drinks.map((drink) => (
-            <button key={drink.id} className="drink-button">
+            <button
+              key={drink.id}
+              className="drink-button"
+              onClick={() => addToCart(drink.id)}
+            >
               {drink.name} {drink.price}원<span>{drink.stock}개</span>
             </button>
           ))}
