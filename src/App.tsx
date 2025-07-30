@@ -7,6 +7,11 @@ interface Drink {
   price: number;
   stock: number;
 }
+interface SelectedItem {
+  drinkId: string;
+  quantity: number;
+}
+
 
 const cashArr = [100, 500, 1000, 5000, 10000];
 
@@ -22,11 +27,55 @@ function App() {
   const [insertedAmount, setInsertedAmount] = useState(0); // 투입금액
   const [change, setChange] = useState(0); // 거스름돈
   const [drinks, setDrinks] = useState<Drink[]>(initialDrinks);
+  const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
+
+
+
+  const totalAmountInCart = selectedItems.reduce((sum, item) => {
+    const drink = drinks.find(d => d.id === item.drinkId);
+    return sum + (drink ? drink.price * item.quantity : 0);
+  }, 0);
 
   //== addToCart ==//
   const addToCart = useCallback((drinkId: string) => {
     console.log("addToCart::", drinkId);
-  }, []);
+    const drinkToAdd = drinks.find(d => d.id === drinkId);
+
+    if (!drinkToAdd) {
+      setMessage('선택하신 음료를 찾을 수 없습니다.');
+      return;
+    }
+    if (drinkToAdd.stock <= 0) {
+      setMessage(`${drinkToAdd.name} 재고가 없습니다.`);
+      return;
+    }
+
+    setSelectedItems(prevItems => {
+      const existingItem = prevItems.find(item => item.drinkId === drinkId);
+      let newSelectedItems: SelectedItem[];
+
+      if (existingItem) {
+        if (existingItem.quantity + 1 > drinkToAdd.stock) {
+          setMessage(`${drinkToAdd.name}은(는) 재고(${drinkToAdd.stock}개)를 초과하여 더 이상 추가할 수 없습니다.`);
+          return prevItems;
+        }
+        newSelectedItems = prevItems.map(item =>
+          item.drinkId === drinkId ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        newSelectedItems = [...prevItems, { drinkId: drinkId, quantity: 1 }];
+      }
+
+      const currentTotal = newSelectedItems.reduce((sum, item) => {
+        const d = drinks.find(drink => drink.id === item.drinkId);
+        return sum + (d ? d.price * item.quantity : 0);
+      }, 0);
+
+      setMessage(`${drinkToAdd.name} ${existingItem ? '1개 추가' : '선택'}되었습니다. 장바구니 총 ${currentTotal}원.`);
+      
+      return newSelectedItems;
+    });
+  }, [drinks, setMessage]);
 
   //== insertMoney ==//
   const insertMoney = useCallback((amount: number) => {
@@ -37,8 +86,10 @@ function App() {
   //== cancelTransaction ==//
   const cancelTransaction = useCallback(() => {
     console.log("cancelTransaction::");
-
     setInsertedAmount(0);
+    setSelectedItems([]);
+    setMessage("돈을 넣어주세요.");
+    setChange(0);
   }, []);
 
   return (
@@ -93,11 +144,23 @@ function App() {
 
       <div className="shopping-cart-section">
         <h2>장바구니</h2>
+        {selectedItems.length === 0 ? (
+          <p>장바구니가 비어있습니다.</p>
+        ) : (
+          <ul>
+            {selectedItems.map(item => {
+                const drink = drinks.find(d => d.id === item.drinkId);
+                if (!drink) return null;
 
-        <ul>
-          <li>콜라 x 1 = 1000원</li>
-        </ul>
-        <h3>총 결제 금액: 1000원</h3>
+                return (
+                  <li key={item.drinkId}>
+                    {drink.name} x {item.quantity} = {drink.price * item.quantity}원
+                  </li>
+                );
+            })}
+          </ul>
+        )}
+        <h3>총 결제 금액: {totalAmountInCart}원</h3>
       </div>
 
       <button className="reset-button">자판기 초기화 (관리자용)</button>
