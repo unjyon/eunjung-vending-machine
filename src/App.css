@@ -62,7 +62,8 @@ h1 {
 
 .money-input-section,
 .drink-selection-section,
-.shopping-cart-section {
+.shopping-cart-section,
+.card-payment-section {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -77,7 +78,8 @@ h2 {
 
 .money-button,
 .cancel-button,
-.reset-button {
+.reset-button,
+.card-payment-button {
   background-color: #4caf50;
   color: #ffffff;
   border: none;
@@ -93,9 +95,14 @@ h2 {
   background-color: #f44336;
 }
 
+.card-payment-button:disabled,
 .money-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.card-payment-button {
+  background-color: #673ab7;
 }
 
 .drink-grid {
@@ -105,7 +112,7 @@ h2 {
 }
 .drink-button {
   background-color: #008cba;
-  color: white;
+  color: #ffffff;
   border: none;
   padding: 15px;
   border-radius: 8px;
