@@ -37,6 +37,7 @@ function App() {
   //== cancelTransaction ==//
   const cancelTransaction = useCallback(() => {
     console.log("cancelTransaction::");
+
     setInsertedAmount(0);
   }, []);
 
@@ -68,6 +69,11 @@ function App() {
         <button className="cancel-button" onClick={() => cancelTransaction()}>
           거래 취소
         </button>
+      </div>
+
+      <div className="card-payment-section">
+        <h2>카드 결제</h2>
+        <button className="card-payment-button">카드 결제 모드 진입</button>
       </div>
 
       <div className="drink-selection-section">
