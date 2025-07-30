@@ -5,38 +5,135 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* src/App.css */
+.vending-machine-container {
+  font-family: Arial, sans-serif;
+  width: 720;
+  margin: 50px auto;
+  padding: 20px;
+  border: 3px solid #494949;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  text-align: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+h1 {
+  color: #333;
+  margin-bottom: 20px;
 }
 
-.card {
-  padding: 2em;
+.display-panel {
+  background-color: #222;
+  color: #48ff10;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.read-the-docs {
-  color: #888;
+.display-panel .message {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.display-panel .amount {
+  font-size: 1.1em;
+}
+
+.display-panel .change-message button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 0.9em;
+}
+
+.display-panel .change-message button:hover {
+  background-color: #0056b3;
+}
+
+.money-input-section,
+.drink-selection-section,
+.shopping-cart-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.money-button,
+.cancel-button,
+.reset-button {
+  background-color: #4caf50;
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-button {
+  background-color: #f44336;
+}
+
+.money-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.drink-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.reset-button {
+  background-color: #607d8b;
+  margin-top: 20px;
+}
+
+.reset-button:hover {
+  background-color: #546e7a;
+}
+
+.shopping-cart-section ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.shopping-cart-section li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.shopping-cart-section li:last-child {
+  border-bottom: none;
+}
+
+.shopping-cart-section h3 {
+  color: #333;
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
 }
