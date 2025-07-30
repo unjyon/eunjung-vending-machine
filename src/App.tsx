@@ -92,6 +92,26 @@ function App() {
     setChange(0);
   }, []);
 
+  //== processPurchase ==//
+  const processPurchase = useCallback(() => {
+    console.log("processPurchase::");
+  }, []);
+
+  //== processCardPayment ==//
+  const processCardPayment = useCallback(() => {
+    console.log("processCardPayment::");
+  }, []);
+
+  //== resetVendingMachine ==//
+  const resetVendingMachine = useCallback(() => {
+    console.log("resetVendingMachine::");
+    setInsertedAmount(0);
+    setSelectedItems([]);
+    setDrinks(initialDrinks); 
+    setMessage('돈을 넣어주세요!');
+    setChange(0);
+  }, []);
+
   return (
     <div className="vending-machine-container">
       <h1>간이 자판기</h1>
@@ -161,9 +181,15 @@ function App() {
           </ul>
         )}
         <h3>총 결제 금액: {totalAmountInCart}원</h3>
+        <button className="purchase-button" onClick={() => processPurchase}>
+          현금으로 구매하기
+        </button>
+        <button className="card-payment-button" onClick={() => processCardPayment()}>
+          카드 결제 시도
+        </button>
       </div>
 
-      <button className="reset-button">자판기 초기화 (관리자용)</button>
+      <button className="reset-button" onClick={() => resetVendingMachine()}>자판기 초기화 (관리자용)</button>
     </div>
   );
 }
