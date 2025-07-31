@@ -18,11 +18,11 @@ const initialDrinks: Drink[] = [
 
 function App() {
   const [message, setMessage] = useState('돈을 넣어주세요.');
-  const [insertedAmount, setInsertedAmount] = useState(0); // 투입금액
-  const [change, setChange] = useState(0); // 거스름돈
+  const [insertedAmount, setInsertedAmount] = useState(0);
+  const [change, setChange] = useState(0); 
   const [drinks, setDrinks] = useState<Drink[]>(initialDrinks);
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
-  const [isCardPayment, setIsCardPayment] = useState<boolean>(false); // 카드 결제 모드 여부
+  const [isCardPayment, setIsCardPayment] = useState<boolean>(false);
 
   const totalAmountInCart = selectedItems.reduce((sum, item) => {
     const drink = drinks.find(d => d.id === item.drinkId);
@@ -255,7 +255,7 @@ function App() {
         setIsCardPayment(false);
       }
     },
-    [selectedItems, totalAmountInCart]
+    [selectedItems, drinks, totalAmountInCart]
   );
 
   //== resetVendingMachine ==//

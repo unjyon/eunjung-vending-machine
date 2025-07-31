@@ -1,69 +1,123 @@
-# React + TypeScript + Vite
+# 🥤 Vending Machine React TypeScript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> TypeScript와 React를 사용하여 구현한 자판기 시뮬레이션 웹 애플리케이션
 
-Currently, two official plugins are available:
+## 📋 목차
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [프로젝트 개요](#-프로젝트-개요)
+- [주요 기능](#-주요-기능)
+- [기술 스택](#-기술-스택)
+- [실행 방법](#-실행-방법)
+- [프로젝트 구조](#-프로젝트-구조)
+- [핵심 로직](#-핵심-로직)
+- [UI/UX 특징](#uiux-특징)
 
-## Expanding the ESLint configuration
+## 🎯 프로젝트 개요
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+본 프로젝트는 **TypeScript**와 **React**를 사용하여 자판기의 핵심 메커니즘을 시뮬레이션한 웹 애플리케이션입니다. 사용자가 다양한 결제 수단(현금, 카드)을 이용해 여러 음료를 선택하고 구매하는 과정을 재현하며, 재고 관리 및 여러 예외 상황에 대한 처리를 포함합니다.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## ✨ 주요 기능
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### 💰 결제 시스템
+- **현금 투입**: 100원, 500원, 1,000원, 5,000원, 10,000원권 지폐 및 동전 투입
+- **카드 결제**: 카드 결제 모드 진입 및 시뮬레이션 기능 (70% 성공 확률)
+- **거스름돈 반환**: 현금 구매 후 남은 금액을 거스름돈으로 계산하여 반환
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 🛒 음료 선택 및 장바구니
+- **음료 종류**: 콜라 (1,100원), 물 (600원), 커피 (700원)
+- **장바구니 기능**: 복수 음료 선택 및 수량 조절
+- **재고 관리**: 실시간 재고 반영 및 부족 시 구매 제한
+
+### 🔄 시스템 기능
+- **거래 취소**: 투입된 금액 반환 및 장바구니 초기화
+- **자판기 초기화**: 관리자용 기능으로 모든 상태 초기화
+- **사용자 메시지**: 현재 자판기 상태 및 오류 발생 시 직관적인 메시지 제공
+
+## 🛠️ 기술 스택
+
+| 분류 | 기술 | 버전 | 용도 |
+|------|------|------|------|
+| **프론트엔드** | React | 18.x | 사용자 인터페이스 구축 |
+| **언어** | TypeScript | 5.x | 타입 안정성 및 개발 생산성 |
+| **빌드 도구** | Vite | 5.x | 개발 서버 및 번들러 |
+| **상태 관리** | React Hooks | - | 컴포넌트 내부 상태 관리 |
+
+## 🚀 실행 방법
+
+### 1. 저장소 클론
+```bash
+git clone [https://github.com/unjyon/eunjung-vending-machine.git]
+cd vending-machine-react-ts
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 2. 의존성 설치
+```bash
+npm install
+# 또는
+yarn install
 ```
+
+### 3. 개발 서버 실행
+```bash
+npm run dev
+# 또는
+yarn dev
+```
+
+웹 브라우저에서 `http://localhost:3000` (또는 터미널에 표시되는 주소)로 접속하여 자판기 시뮬레이션을 확인할 수 있습니다.
+
+## 📁 프로젝트 구조
+
+```
+src/
+├── components/
+│   ├── CardPaymentSection.tsx  # 카드 결제 모드 진입
+│   ├── DisplayPanel.tsx        # 자판기 메시지, 투입 금액, 거스름돈 표시
+│   ├── DrinkSelectionSection.tsx # 음료 선택 및 재고 표시
+│   ├── MoneyInputSection.tsx   # 현금 투입 및 거래 취소
+│   └── ShoppingCartSection.tsx # 장바구니 내용 및 구매 버튼
+├── types/
+│   └── index.ts                # 공통 타입 정의 (인터페이스)
+└── App.tsx                     # 메인 애플리케이션 로직 및 컴포넌트 조합
+```
+
+## 🔧 핵심 로직
+
+### 예외 처리
+- **재고 부족**: 음료 선택 시 재고가 없거나, 장바구니에 담는 수량이 재고를 초과할 경우 경고 메시지와 함께 추가/구매 제한
+- **금액 부족**: 현금 결제 시 장바구니의 총액보다 투입 금액이 부족하면 구매 불가능 메시지 표시
+- **카드 결제 실패**: 카드 결제 시뮬레이션 중 무작위로 실패할 수 있으며, 실패 시 사용자에게 메시지 전달
+
+### 상태 관리
+- **중앙 집중식 관리**: 모든 핵심 자판기 로직과 상태는 `App.tsx` 최상위 컴포넌트에서 관리
+- **Props 전달**: 각 하위 컴포넌트에는 필요한 상태와 상태 변경 함수를 props로 전달하여 재사용성 향상
+- **성능 최적화**: `useCallback` 훅을 사용하여 불필요한 함수 재생성 방지
+
+### 결제 수단 전환
+- 현금 투입 중에는 카드 결제 모드로 진입 불가
+- 카드 결제 모드 진입 시 현금 투입 금액은 초기화되지만 장바구니 내용은 유지
+- 거래 취소 시 진행 중인 현금 투입, 장바구니, 카드 결제 모드를 모두 초기화
+
+## 🎨 UI/UX 특징
+
+### 직관적인 인터페이스
+- 돈 투입, 음료 선택, 장바구니, 메시지 출력 영역을 명확히 구분
+- 사용자가 쉽게 자판기를 조작할 수 있도록 설계
+
+### 시각적 피드백
+- 현재 투입 금액, 장바구니 총액, 시스템 메시지를 실시간 업데이트
+- 사용자가 현재 상황을 명확히 인지할 수 있도록 지원
+
+### 사용자 경험 최적화
+- 구매 불가능하거나 선택할 수 없는 버튼은 비활성화하여 혼란 방지
+- 거스름돈이 발생하면 '거스름돈 받기' 버튼을 통해 반환 가능
+
+## ⚠️ 유의 사항
+
+- 이 프로젝트는 실제 자판기의 복잡한 물리적/네트워크 연동을 시뮬레이션하지 않습니다
+- 모든 결제 및 음료 제공 로직은 프론트엔드에서만 처리됩니다
+- 카드 결제는 단순한 성공/실패 로직으로 구현되어 있으며, 실제 카드 결제 시스템과 연동되지 않습니다
+
+---
+
+
