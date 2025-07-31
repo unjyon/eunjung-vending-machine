@@ -1,16 +1,11 @@
 import { useCallback, useState } from 'react';
 import './App.css';
-
-interface Drink {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-}
-interface SelectedItem {
-  drinkId: string;
-  quantity: number;
-}
+import { CardPaymentSection } from './components/CardPaymentSection';
+import { DisplayPanel } from './components/DisplayPanel';
+import { DrinkSelectionSection } from './components/DrinkSelectionSection';
+import { MoneyInputSection } from './components/MoneyInputSection';
+import { ShoppingCartSection } from './components/ShoppingCartSection';
+import type { Drink, SelectedItem } from './types';
 
 const cashArr = [100, 500, 1000, 5000, 10000];
 
@@ -278,125 +273,37 @@ function App() {
     <div className="vending-machine-container">
       <h1>간이 자판기</h1>
 
-      <div className="display-panel">
-        <p className="message">{message}</p>
-        {!isCardPayment && (
-          <p className="amount">투입 금액: {insertedAmount}원</p>
-        )}
-        {change > 0 && (
-          <p className="change-message">
-            반환할 거스름돈: {change}원
-            <button onClick={() => getChange()}>거스름돈 받기</button>
-          </p>
-        )}
-      </div>
+      <DisplayPanel
+        message={message}
+        insertedAmount={insertedAmount}
+        change={change}
+        isCardPayment={isCardPayment}
+        onGetChange={getChange}
+      />
 
-      <div className="money-input-section">
-        <h2>돈 투입</h2>
-        {cashArr.map(amount => (
-          <button
-            key={amount}
-            className="money-button"
-            onClick={() => insertMoney(amount)}
-            disabled={isCardPayment}
-          >
-            {amount}원
-          </button>
-        ))}
-        <button className="cancel-button" onClick={() => cancelTransaction()}>
-          거래 취소
-        </button>
-      </div>
+      <MoneyInputSection
+        cashArr={cashArr}
+        isCardPayment={isCardPayment}
+        onInsertMoney={insertMoney}
+        onCancelTransaction={cancelTransaction}
+      />
 
-      <div className="card-payment-section">
-        <h2>카드 결제</h2>
-        <button
-          className="card-payment-button"
-          onClick={() => setCardPaymentMode(true)}
-        >
-          카드 결제 모드 진입
-        </button>
-      </div>
+      <CardPaymentSection onSetCardPaymentMode={setCardPaymentMode} />
 
-      <div className="drink-selection-section">
-        <h2>음료 선택</h2>
-        <div className="drink-grid">
-          {drinks.map(drink => (
-            <button
-              key={drink.id}
-              className={`drink-button ${drink.stock <= 0 ? 'disabled' : ''}`}
-              onClick={() => addToCart(drink.id)}
-              disabled={drink.stock <= 0}
-            >
-              {drink.name} {drink.price}원<span>{drink.stock}개</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <DrinkSelectionSection drinks={drinks} onAddToCart={addToCart} />
 
-      <div className="shopping-cart-section">
-        <h2>장바구니</h2>
-        {selectedItems.length === 0 ? (
-          <p>장바구니가 비어있습니다.</p>
-        ) : (
-          <ul>
-            {selectedItems.map(item => {
-              const drink = drinks.find(d => d.id === item.drinkId);
-              if (!drink) return null;
+      <ShoppingCartSection
+        selectedItems={selectedItems}
+        drinks={drinks}
+        totalAmountInCart={totalAmountInCart}
+        isCardPayment={isCardPayment}
+        onSetItemQuantity={setItemQuantity}
+        onRemoveFromCart={removeFromCart}
+        onProcessPurchase={processPurchase}
+        onProcessCardPayment={processCardPayment}
+        onResetVendingMachine={resetVendingMachine}
+      />
 
-              return (
-                <li key={item.drinkId}>
-                  {drink.name} x {item.quantity} = {drink.price * item.quantity}
-                  원
-                  <button
-                    onClick={() =>
-                      setItemQuantity(item.drinkId, item.quantity - 1)
-                    }
-                    className="quantity-button"
-                  >
-                    -
-                  </button>
-                  <button
-                    onClick={() =>
-                      setItemQuantity(item.drinkId, item.quantity + 1)
-                    }
-                    className="quantity-button"
-                    disabled={item.quantity >= drink.stock}
-                  >
-                    +
-                  </button>
-                  <button
-                    onClick={() => removeFromCart(item.drinkId)}
-                    className="remove-from-cart-button"
-                  >
-                    X
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        <h3>총 결제 금액: {totalAmountInCart}원</h3>
-        <button
-          className="purchase-button"
-          onClick={processPurchase}
-          disabled={isCardPayment}
-        >
-          현금으로 구매하기
-        </button>
-        {isCardPayment && selectedItems.length > 0 && (
-          <button
-            className="card-payment-button"
-            onClick={() => processCardPayment(Math.random() > 0.3)}
-          >
-            카드 결제 시도
-          </button>
-        )}
-      </div>
-
-      <button className="reset-button" onClick={() => resetVendingMachine()}>
-        자판기 초기화 (관리자용)
-      </button>
     </div>
   );
 }
