@@ -27,6 +27,7 @@ function App() {
   const [change, setChange] = useState(0); // 거스름돈
   const [drinks, setDrinks] = useState<Drink[]>(initialDrinks);
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
+  const [isCardPayment, setIsCardPayment] = useState<boolean>(false); // 카드 결제 모드 여부
 
   const totalAmountInCart = selectedItems.reduce((sum, item) => {
     const drink = drinks.find(d => d.id === item.drinkId);
@@ -76,7 +77,7 @@ function App() {
         setMessage(
           `${drinkToAdd.name} ${existingItem ? '1개 추가' : '선택'}되었습니다. 장바구니 총 ${currentTotal}원.`
         );
-
+        setIsCardPayment(false);
         return newSelectedItems;
       });
     },
@@ -101,9 +102,24 @@ function App() {
     setMessage(`거스름돈 ${returnedChange}원이 반환되었습니다.`);
   }, [change]);
 
+  //== setCardPaymentMode ==//
+  const setCardPaymentMode = useCallback((mode: boolean) => {
+    setIsCardPayment(mode);
+    if (mode) {
+      setInsertedAmount(0); // 현금 투입 초기화
+      // setSelectedItems([]); // 카드 모드 진입 시 장바구니 초기화 (새로운 결제 시작)
+      setMessage('카드 결제 모드입니다. 음료를 선택하세요.');
+    } else {
+      setMessage('돈을 넣어주세요!');
+    }
+  }, []);
+
   //== cancelTransaction ==//
   const cancelTransaction = useCallback(() => {
     console.log('cancelTransaction::');
+    if (isCardPayment) {
+      setCardPaymentMode(false);
+    }
     const returnedAmount = insertedAmount;
     setInsertedAmount(0);
     setSelectedItems([]);
@@ -113,7 +129,8 @@ function App() {
         ? `${returnedAmount}원이 반환되었습니다. 다시 이용해주세요.`
         : '거래가 취소되었습니다.'
     );
-  }, [insertedAmount]);
+    setIsCardPayment(false);
+  }, [insertedAmount, isCardPayment, setCardPaymentMode]);
 
   //== processPurchase ==//
   const processPurchase = useCallback(() => {
@@ -135,7 +152,7 @@ function App() {
     }
 
     // 현금 결제일 경우 금액 부족 여부 확인
-    if (insertedAmount < totalAmountInCart) {
+    if (!isCardPayment && insertedAmount < totalAmountInCart) {
       setMessage(
         `총 ${totalAmountInCart}원 구매에 금액이 부족합니다. (${insertedAmount}원 투입됨)`
       );
@@ -162,7 +179,8 @@ function App() {
     setSelectedItems([]);
     setChange(newChange);
     setMessage(`구매가 완료되었습니다! 거스름돈: ${newChange}원.`);
-  }, [insertedAmount, selectedItems, drinks, totalAmountInCart]);
+    setIsCardPayment(false);
+  }, [insertedAmount, selectedItems, drinks, totalAmountInCart, isCardPayment]);
 
   //== setItemQuantity ==//
   const setItemQuantity = useCallback(
@@ -213,9 +231,39 @@ function App() {
   };
 
   //== processCardPayment ==//
-  const processCardPayment = useCallback(() => {
-    console.log('processCardPayment::');
-  }, []);
+  const processCardPayment = useCallback(
+    (success: boolean) => {
+      if (selectedItems.length === 0) {
+        setMessage('먼저 음료를 선택해주세요.');
+        return;
+      }
+
+      if (success) {
+        // 결제 성공
+        setDrinks(prevDrinks =>
+          prevDrinks.map(drink => {
+            const selectedItem = selectedItems.find(
+              item => item.drinkId === drink.id
+            );
+            if (selectedItem) {
+              return { ...drink, stock: drink.stock - selectedItem.quantity };
+            }
+            return drink;
+          })
+        );
+        setInsertedAmount(0);
+        setSelectedItems([]);
+        setChange(0);
+        setMessage(`카드 결제 성공! ${totalAmountInCart}원 결제되었습니다.`);
+        setIsCardPayment(false);
+      } else {
+        // 결제 실패
+        setMessage('카드 결제에 실패했습니다. 다시 시도해주세요.');
+        setIsCardPayment(false);
+      }
+    },
+    [selectedItems, totalAmountInCart]
+  );
 
   //== resetVendingMachine ==//
   const resetVendingMachine = useCallback(() => {
@@ -225,6 +273,7 @@ function App() {
     setDrinks(initialDrinks);
     setMessage('돈을 넣어주세요!');
     setChange(0);
+    setIsCardPayment(false);
   }, []);
 
   return (
@@ -233,8 +282,9 @@ function App() {
 
       <div className="display-panel">
         <p className="message">{message}</p>
-
-        <p className="amount">투입 금액: {insertedAmount}원</p>
+        {!isCardPayment && (
+          <p className="amount">투입 금액: {insertedAmount}원</p>
+        )}
         {change > 0 && (
           <p className="change-message">
             반환할 거스름돈: {change}원
@@ -250,6 +300,7 @@ function App() {
             key={amount}
             className="money-button"
             onClick={() => insertMoney(amount)}
+            disabled={isCardPayment}
           >
             {amount}원
           </button>
@@ -261,7 +312,12 @@ function App() {
 
       <div className="card-payment-section">
         <h2>카드 결제</h2>
-        <button className="card-payment-button">카드 결제 모드 진입</button>
+        <button
+          className="card-payment-button"
+          onClick={() => setCardPaymentMode(true)}
+        >
+          카드 결제 모드 진입
+        </button>
       </div>
 
       <div className="drink-selection-section">
@@ -270,8 +326,9 @@ function App() {
           {drinks.map(drink => (
             <button
               key={drink.id}
-              className="drink-button"
+              className={`drink-button ${drink.stock <= 0 ? 'disabled' : ''}`}
               onClick={() => addToCart(drink.id)}
+              disabled={drink.stock <= 0}
             >
               {drink.name} {drink.price}원<span>{drink.stock}개</span>
             </button>
@@ -322,15 +379,25 @@ function App() {
           </ul>
         )}
         <h3>총 결제 금액: {totalAmountInCart}원</h3>
-        <button className="purchase-button" onClick={processPurchase}>
+        <button
+          className="purchase-button"
+          onClick={processPurchase}
+          disabled={
+            totalAmountInCart === 0 ||
+            (insertedAmount < totalAmountInCart && !isCardPayment) ||
+            isCardPayment
+          }
+        >
           현금으로 구매하기
         </button>
-        <button
-          className="card-payment-button"
-          onClick={() => processCardPayment()}
-        >
-          카드 결제 시도
-        </button>
+        {isCardPayment && selectedItems.length > 0 && (
+          <button
+            className="card-payment-button"
+            onClick={() => processCardPayment(Math.random() > 0.3)}
+          >
+            카드 결제 시도
+          </button>
+        )}
       </div>
 
       <button className="reset-button" onClick={() => resetVendingMachine()}>
