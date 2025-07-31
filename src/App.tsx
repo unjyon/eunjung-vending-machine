@@ -77,7 +77,6 @@ function App() {
         setMessage(
           `${drinkToAdd.name} ${existingItem ? '1개 추가' : '선택'}되었습니다. 장바구니 총 ${currentTotal}원.`
         );
-        setIsCardPayment(false);
         return newSelectedItems;
       });
     },
@@ -107,7 +106,6 @@ function App() {
     setIsCardPayment(mode);
     if (mode) {
       setInsertedAmount(0); // 현금 투입 초기화
-      // setSelectedItems([]); // 카드 모드 진입 시 장바구니 초기화 (새로운 결제 시작)
       setMessage('카드 결제 모드입니다. 음료를 선택하세요.');
     } else {
       setMessage('돈을 넣어주세요!');
@@ -185,7 +183,6 @@ function App() {
   //== setItemQuantity ==//
   const setItemQuantity = useCallback(
     (drinkId: string, quantity: number) => {
-      console.log('setItemQuantity::', drinkId, quantity);
       setSelectedItems(prevItems => {
         const drink = drinks.find(d => d.id === drinkId);
         if (!drink) return prevItems;
@@ -210,7 +207,7 @@ function App() {
   );
 
   //== removeFromCart ==//
-  const removeFromCart = (drinkId: string) => {
+  const removeFromCart = useCallback((drinkId: string) => {
     setSelectedItems(prevItems => {
       const newSelectedItems = prevItems.filter(
         item => item.drinkId !== drinkId
@@ -228,7 +225,8 @@ function App() {
       );
       return newSelectedItems;
     });
-  };
+    
+  }, []);
 
   //== processCardPayment ==//
   const processCardPayment = useCallback(
@@ -382,11 +380,7 @@ function App() {
         <button
           className="purchase-button"
           onClick={processPurchase}
-          disabled={
-            totalAmountInCart === 0 ||
-            (insertedAmount < totalAmountInCart && !isCardPayment) ||
-            isCardPayment
-          }
+          disabled={isCardPayment}
         >
           현금으로 구매하기
         </button>
