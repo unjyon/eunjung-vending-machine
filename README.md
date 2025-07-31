@@ -47,7 +47,7 @@
 ### 1. 저장소 클론
 ```bash
 git clone [https://github.com/unjyon/eunjung-vending-machine.git]
-cd vending-machine-react-ts
+cd eunjung-vending-machine
 ```
 
 ### 2. 의존성 설치
