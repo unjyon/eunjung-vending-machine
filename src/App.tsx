@@ -80,7 +80,7 @@ function App() {
         return newSelectedItems;
       });
     },
-    [drinks, setMessage]
+    [drinks]
   );
 
   //== insertMoney ==//
@@ -99,7 +99,7 @@ function App() {
     const returnedChange = change;
     setChange(0);
     setMessage(`거스름돈 ${returnedChange}원이 반환되었습니다.`);
-  }, [change, setMessage, setChange]);
+  }, [change]);
 
   //== cancelTransaction ==//
   const cancelTransaction = useCallback(() => {
@@ -162,17 +162,7 @@ function App() {
     setSelectedItems([]);
     setChange(newChange);
     setMessage(`구매가 완료되었습니다! 거스름돈: ${newChange}원.`);
-  }, [
-    insertedAmount,
-    selectedItems,
-    drinks,
-    totalAmountInCart,
-    setMessage,
-    setDrinks,
-    setInsertedAmount,
-    setSelectedItems,
-    setChange,
-  ]);
+  }, [insertedAmount, selectedItems, drinks, totalAmountInCart]);
 
   //== setItemQuantity ==//
   const setItemQuantity = useCallback(
@@ -198,7 +188,7 @@ function App() {
         }
       });
     },
-    [drinks, setMessage, setSelectedItems]
+    [drinks]
   );
 
   //== removeFromCart ==//
